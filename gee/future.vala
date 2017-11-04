@@ -111,7 +111,7 @@ public interface Gee.Future<G> : Object {
 	 */
 	[CCode (ordering = 2)]
 	public abstract async unowned G wait_async () throws Gee.FutureError;
-	public delegate A MapFunc<A, G> (G value);
+	public delegate A MapFunc<A, G> (G value) throws Error;
 
 	/**
 	 * Maps a future value to another value by a function and returns the
@@ -175,7 +175,7 @@ public interface Gee.Future<G> : Object {
 	}
 
 	[CCode (scope = "async")]
-	public delegate C ZipFunc<A, B, C>(A a, B b);
+	public delegate C ZipFunc<A, B, C>(A a, B b) throws Error;
 
 	/**
 	 * Combines values of two futures using a function returning the combined
@@ -208,7 +208,7 @@ public interface Gee.Future<G> : Object {
 		}
 	}
 
-	public delegate Gee.Future<A> FlatMapFunc<A, G>(G value);
+	public delegate Gee.Future<A> FlatMapFunc<A, G>(G value) throws Error;
 
 	/**
 	 * Maps a future value to another future value which is returned (call does not block).
