@@ -241,6 +241,36 @@ public interface Gee.Future<G> : Object {
 		}
 	}
 
+	public delegate Future<A> ExceptionMapFunc<A>(Error e) throws Error;
+
+	/**
+	 * Maps a future exception to a value by a function and returns the
+	 * other value in future.
+	 *
+	 * If the exception is unhandled, {@link func} should rethrow the exception.
+	 *
+	 * @param func Function applied to {@link exception}
+	 * @return Value returned by function
+	 */
+	[CCode (ordering = 11)]
+	public virtual Gee.Future<A> exception_map<A>(owned ExceptionMapFunc<A> func) {
+		Promise<A> promise = new Promise<A> ();
+		wait_async.begin ((obj, res) => {
+			try {
+				try {
+					promise.set_value (wait_async.end (res));
+				} catch (FutureError.EXCEPTION e) {
+					promise.set_value (func (this.exception));
+				} catch (Error ex) {
+					promise.set_value (func (ex));
+				}
+			} catch (Error ex) {
+				promise.set_exception ((owned)ex);
+			}
+		});
+		return promise.future;
+	}
+
 	internal struct SourceFuncArrayElement {
 		public SourceFuncArrayElement (owned SourceFunc func) {
 			this.func = (owned)func;
